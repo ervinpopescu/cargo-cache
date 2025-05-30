@@ -11,11 +11,10 @@ runs:
     - id: setup
       shell: bash
       run: |
-        rustup default nightly
+        rustup default stable
         echo CARGO_UNSTABLE_GC=true >> ${{ github.env }}
-
         echo prefix=cargo-cache-v1 >> ${{ github.output }}
-        echo directory=.cargo_cache >> ${{ github.output }}
+        echo directory="$AGENT_TOOLSDIRECTORY"/cargo_cache >> ${{ github.output }}
     - shell: bash
       run: |
         directory=${{ steps.setup.outputs.directory }}
@@ -35,15 +34,15 @@ runs:
     - uses: actions/cache@v4
       with:
         path: |
-          ~/.cargo/.*
-          ~/.cargo/bin
-          ~/.cargo/git
-          ~/.cargo/registry
-          **/target/*/*.d
-          **/target/*/*.rlib
-          **/target/*/.fingerprint
-          **/target/*/build
-          **/target/*/deps
+          ${{ env.CARGO_HOME }}/.*
+          ${{ env.CARGO_HOME }}/bin
+          ${{ env.CARGO_HOME }}/git
+          ${{ env.CARGO_HOME }}/registry
+          ${{ env.CARGO_HOME }}/target/*/*.d
+          ${{ env.CARGO_HOME }}/target/*/*.rlib
+          ${{ env.CARGO_HOME }}/target/*/.fingerprint
+          ${{ env.CARGO_HOME }}/target/*/build
+          ${{ env.CARGO_HOME }}/target/*/deps
         key: ${{ steps.setup.outputs.prefix }}-${{ runner.os }}-${{ github.job }}-${{ github.action }}-${{ hashFiles(join(steps.setup.outputs.directory, '/**')) }}-${{ steps.timestamp.outputs.timestamp }}
         restore-keys: |
           ${{ steps.setup.outputs.prefix }}-${{ runner.os }}-${{ github.job }}-${{ github.action }}-${{ hashFiles(join(steps.setup.outputs.directory, '/**')) }}-
